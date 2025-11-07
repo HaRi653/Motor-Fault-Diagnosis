@@ -1,31 +1,26 @@
-import Motor from "../models/MotorModel.js";
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import motorRoutes from "./routes/motorRoutes.js";
 
-export async function receiveData(req, res) {
-  try {
-    const { temperature, humidity, vibration } = req.body;
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-    const status = Math.random() > 0.5 ? "✅ Normal" : "⚠️ Fault";
+const MONGO_URI = "mongodb+srv://126158051_db_user:Srihari%4018@cluster0.xqfp7i6.mongodb.net/motor?retryWrites=true&w=majority&appName=Cluster0";
 
-    const data = new Motor({
-      motor_id: "M1",
-      temperature,
-      humidity,
-      vibration,
-      status
-    });
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ DB Error:", err));
 
-    await data.save();
-    res.json({ message: "OK", status });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
+app.use("/api", motorRoutes);
 
-export async function getLatestData(req, res) {
-  try {
-    const latest = await Motor.findOne().sort({ timestamp: -1 });
-    res.json(latest);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
+app.get("/", (req, res) => {
+  res.send("✅ Backend running");
+});
+
+const PORT = process.env.PORT || 7000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
