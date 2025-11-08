@@ -1,5 +1,4 @@
 import express from "express";
-
 import { receiveData, getLatestData } from "../controllers/motorController.js";
 
 const router = express.Router();
